@@ -3,7 +3,7 @@ import html
 import requests
 from bs4 import BeautifulSoup
 
-HANDLE = "YOUR_CF_HANDLE"
+HANDLE = "mishika7608"
 
 SAVE_DIR = "solutions"
 os.makedirs(SAVE_DIR, exist_ok=True)
