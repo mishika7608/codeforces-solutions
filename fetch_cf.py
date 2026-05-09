@@ -12,10 +12,18 @@ api = f"https://codeforces.com/api/user.status?handle={HANDLE}"
 
 resp = requests.get(api).json()
 
+print(resp["status"])
+
 if resp["status"] != "OK":
-    raise Exception("API Error")
+    raise Exception("Codeforces API failed")
 
 subs = resp["result"]
+
+saved = 0
+
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
 
 for sub in subs:
 
@@ -26,6 +34,9 @@ for sub in subs:
 
     contest = problem.get("contestId")
     index = problem.get("index")
+
+    if not contest:
+        continue
 
     lang = sub.get("programmingLanguage", "")
 
@@ -49,18 +60,27 @@ for sub in subs:
 
     subid = sub["id"]
 
-    url = f"https://codeforces.com/contest/{contest}/submission/{subid}"
+    print("Fetching:", subid)
 
-    page = requests.get(url)
+    url = f"https://codeforces.com/problemset/submission/{contest}/{subid}"
+
+    page = requests.get(url, headers=headers)
 
     soup = BeautifulSoup(page.text, "html.parser")
 
-    codebox = soup.find("pre", id="program-source-text")
+    codebox = soup.find("pre")
 
     if not codebox:
+        print("Code not found")
         continue
 
     code = html.unescape(codebox.text)
 
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(code)
+
+    print("Saved:", filename)
+
+    saved += 1
+
+print("Total saved:", saved)
